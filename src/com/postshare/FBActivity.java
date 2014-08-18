@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import android.app.AlertDialog;
-import android.content.ContentResolver;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.graphics.Bitmap;
@@ -50,6 +50,13 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.PlusShare;
+import com.renn.rennsdk.RennClient;
+import com.renn.rennsdk.RennClient.LoginListener;
+import com.renn.rennsdk.RennExecutor.CallBack;
+import com.renn.rennsdk.RennResponse;
+import com.renn.rennsdk.exception.RennException;
+import com.renn.rennsdk.param.PutStatusParam;
+import com.renn.rennsdk.param.UploadPhotoParam;
 
 public class FBActivity extends ActionBarActivity implements
 ConnectionCallbacks, OnConnectionFailedListener {
@@ -76,7 +83,13 @@ ConnectionCallbacks, OnConnectionFailedListener {
     private List<GraphUser> tags;
     private boolean canPresentShareDialog;
     private boolean canPresentShareDialogWithPhotos;
-    
+    private String API_KEY = "271029";
+    private String APP_ID = "22d8d580b4e14bc898daa3ab3f9b676d";
+    private String SECRET_KEY = "58baed9ddc4a48e888794b0a3b2523f6";
+    private RennClient rennClient;
+
+    private ProgressDialog mProgressDialog;
+
     
     private enum PendingAction {
         NONE,
@@ -91,7 +104,12 @@ ConnectionCallbacks, OnConnectionFailedListener {
 		@Override
 		public void call(com.facebook.Session session, SessionState state, Exception exception) {
 			// TODO Auto-generated method stub
-			onSessionStateChange(session, state, exception);
+			try {
+				onSessionStateChange(session, state, exception);
+			} catch (RennException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	};
 	
@@ -118,7 +136,12 @@ ConnectionCallbacks, OnConnectionFailedListener {
                 updateUI();
                 // It's possible that we were waiting for this.user to be populated in order to post a
                 // status update.
-                handlePendingAction();
+                try {
+					handlePendingAction();
+				} catch (RennException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
 
@@ -128,14 +151,24 @@ ConnectionCallbacks, OnConnectionFailedListener {
         postStatusUpdateButton = (Button) findViewById(R.id.postStatusUpdateButton);
         postStatusUpdateButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                onClickPostStatusUpdate();
+                try {
+					onClickPostStatusUpdate();
+				} catch (RennException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
 
         postPhotoButton = (Button) findViewById(R.id.postPhotoButton);
         postPhotoButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                onClickPostPhoto();
+                try {
+					onClickPostPhoto();
+				} catch (RennException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
 
@@ -220,9 +253,39 @@ ConnectionCallbacks, OnConnectionFailedListener {
 	          startActivityForResult(shareIntent, RC_SHARE);
 	        }
 	    });
+	    
+	    
+	    //renren
+	    rennClient = RennClient.getInstance(this);
+	    rennClient.init(APP_ID, API_KEY, SECRET_KEY);
+	    rennClient.setScope("status_update photo_upload publish_feed");
+	    rennClient.setTokenType("bearer"); 
+	    
+	    Button renrenButton = (Button) findViewById(R.id.renren_signin_button);
+	    renrenButton.setOnClickListener(new View.OnClickListener() {
+	        @Override
+	        public void onClick(View v) {
+		   
+	        	rennClient.login(FBActivity.this);
+	        }
+	    });
+		rennClient.setLoginListener(new LoginListener() {
+			@Override
+			public void onLoginSuccess() {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void onLoginCanceled() {
+				// TODO Auto-generated method stub
+			}
+	
+		});
+		
+		
+        
 	}
 
-    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+    private void onSessionStateChange(Session session, SessionState state, Exception exception) throws RennException {
         if (pendingAction != PendingAction.NONE &&
                 (exception instanceof FacebookOperationCanceledException ||
                 exception instanceof FacebookAuthorizationException)) {
@@ -334,7 +397,7 @@ ConnectionCallbacks, OnConnectionFailedListener {
 	} 
 
     @SuppressWarnings("incomplete-switch")
-    private void handlePendingAction() {
+    private void handlePendingAction() throws RennException {
         PendingAction previouslyPendingAction = pendingAction;
         // These actions may re-set pendingAction if they are still pending, but we assume they
         // will succeed.
@@ -373,7 +436,7 @@ ConnectionCallbacks, OnConnectionFailedListener {
                 .show();
     }
 
-    private void onClickPostStatusUpdate() {
+    private void onClickPostStatusUpdate() throws RennException {
         performPublish(PendingAction.POST_STATUS_UPDATE, canPresentShareDialog);
     }
 
@@ -402,6 +465,46 @@ ConnectionCallbacks, OnConnectionFailedListener {
         } else {
             pendingAction = PendingAction.POST_STATUS_UPDATE;
         }
+        //Renren
+        PutStatusParam putStatusParam = new PutStatusParam();
+        putStatusParam.setContent(this.getIntent().getExtras().getString("status"));
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(FBActivity.this);
+            mProgressDialog.setCancelable(true);
+            mProgressDialog.setTitle("请等待");
+            mProgressDialog.setIcon(android.R.drawable.ic_dialog_info);
+            mProgressDialog.setMessage("正在发布状态");
+            mProgressDialog.show();
+        }
+        try {
+            rennClient.getRennService().sendAsynRequest(putStatusParam, new CallBack() {    
+                
+                @Override
+                public void onSuccess(RennResponse response) {
+                    //textView.setText(response.toString());
+                    Toast.makeText(FBActivity.this, "状态发布成功", Toast.LENGTH_SHORT).show();  
+                    if (mProgressDialog != null) {
+                        mProgressDialog.dismiss();
+                        mProgressDialog = null;
+                    }                           
+                }
+                
+                @Override
+                public void onFailed(String errorCode, String errorMessage) {
+                    //textView.setText(errorCode+":"+errorMessage);
+                    Toast.makeText(FBActivity.this, "状态发布失败", Toast.LENGTH_SHORT).show();
+                    if (mProgressDialog != null) {
+                        mProgressDialog.dismiss();
+                        mProgressDialog = null;
+                    }                            
+                }
+            });
+        } catch (RennException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        
+        
         //G+ share
         String message = this.getIntent().getExtras().getString("status");
         
@@ -413,7 +516,7 @@ ConnectionCallbacks, OnConnectionFailedListener {
         startActivityForResult(shareIntent, RC_SHARE);
     }
 
-    private void onClickPostPhoto() {
+    private void onClickPostPhoto() throws RennException {
         performPublish(PendingAction.POST_PHOTO, canPresentShareDialogWithPhotos);
     }
 
@@ -422,7 +525,7 @@ ConnectionCallbacks, OnConnectionFailedListener {
                 .addPhotos(Arrays.asList(photos));
     }
 
-    private void postPhoto() {
+    private void postPhoto() throws RennException {
         Bitmap image = BitmapFactory.decodeFile(this.getIntent().getExtras().getString("image"));//decodeResource(this.getResources(), R.drawable.ic_launcher);
         if (canPresentShareDialogWithPhotos) {
             FacebookDialog shareDialog = createShareDialogBuilderForPhoto(image).build();
@@ -444,6 +547,57 @@ ConnectionCallbacks, OnConnectionFailedListener {
         } else {
             pendingAction = PendingAction.POST_PHOTO;
         }
+        
+        //Renren
+        UploadPhotoParam param = new UploadPhotoParam();
+        try{
+        	 param.setFile(new File(FBActivity.this.getIntent().getExtras().getString("image")));
+        	 param.setAlbumId(Long.valueOf("318080934"));
+        	 String cap = FBActivity.this.getIntent().getExtras().getString("caption");
+        	 if(cap.equals("")) cap = FBActivity.this.getIntent().getExtras().getString("status");
+             param.setDescription(cap);
+        }catch(Exception e){                	
+        }              
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(FBActivity.this);
+            mProgressDialog.setCancelable(true);
+            mProgressDialog.setTitle("请等待");
+            mProgressDialog.setIcon(android.R.drawable.ic_dialog_info);
+            mProgressDialog.setMessage("正在获取信息");
+            mProgressDialog.show();
+        }
+        try {
+            rennClient.getRennService().sendAsynRequest(param, new CallBack() {    
+
+                @Override
+                public void onSuccess(RennResponse response) {
+                    //textView.setText(response.toString());
+                    Toast.makeText(FBActivity.this, "获取成功", Toast.LENGTH_SHORT)
+                            .show();
+                    if (mProgressDialog != null) {
+                        mProgressDialog.dismiss();
+                        mProgressDialog = null;
+                    }
+                }
+
+                @Override
+                public void onFailed(String errorCode, String errorMessage) {
+                    //textView.setText(errorCode + ":" + errorMessage);
+                    Toast.makeText(FBActivity.this, "获取失败", Toast.LENGTH_SHORT)
+                            .show();
+                    if (mProgressDialog != null) {
+                        mProgressDialog.dismiss();
+                        mProgressDialog = null;
+                    }
+                }
+            });
+        } catch (RennException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        
+        
+        
         //G+ share
         String path = FBActivity.this.getIntent().getExtras().getString("image");
         Uri uriPath = Uri.fromFile(new File(path));
@@ -458,6 +612,8 @@ ConnectionCallbacks, OnConnectionFailedListener {
             .getIntent();
 
         startActivityForResult(shareIntent, RC_SHARE);
+        
+     
     }
 
     private void showPickerFragment(PickerFragment<?> fragment) {
@@ -580,7 +736,7 @@ ConnectionCallbacks, OnConnectionFailedListener {
         return session != null && session.getPermissions().contains("publish_actions");
     }
 
-    private void performPublish(PendingAction action, boolean allowNoSession) {
+    private void performPublish(PendingAction action, boolean allowNoSession) throws RennException {
         Session session = Session.getActiveSession();
         if (session != null) {
             pendingAction = action;

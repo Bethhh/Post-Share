@@ -1604,7 +1604,7 @@ containing a value of this type.
         public static final int com_facebook_list_section_header_background=0x7f020064;
         public static final int com_facebook_loginbutton_silver=0x7f020065;
         public static final int com_facebook_logo=0x7f020066;
-        public static final int com_facebook_picker_default_separator_color=0x7f02009e;
+        public static final int com_facebook_picker_default_separator_color=0x7f02009f;
         public static final int com_facebook_picker_item_background=0x7f020067;
         public static final int com_facebook_picker_list_focused=0x7f020068;
         public static final int com_facebook_picker_list_longpressed=0x7f020069;
@@ -1660,6 +1660,7 @@ containing a value of this type.
         public static final int ic_plusone_tall_off_client=0x7f02009b;
         public static final int powered_by_google_dark=0x7f02009c;
         public static final int powered_by_google_light=0x7f02009d;
+        public static final int rr_login=0x7f02009e;
     }
     public static final class id {
         public static final int action_bar=0x7f080030;
@@ -1673,7 +1674,7 @@ containing a value of this type.
         public static final int action_menu_divider=0x7f08002a;
         public static final int action_menu_presenter=0x7f08002b;
         public static final int action_mode_close_button=0x7f080038;
-        public static final int action_settings=0x7f080079;
+        public static final int action_settings=0x7f08007a;
         public static final int activity_chooser_view_content=0x7f080039;
         public static final int always=0x7f080020;
         public static final int beginning=0x7f080025;
@@ -1721,9 +1722,9 @@ containing a value of this type.
         public static final int end=0x7f080027;
         public static final int expand_activities_button=0x7f08003a;
         public static final int expanded_menu=0x7f080040;
-        public static final int fragment_container=0x7f080078;
+        public static final int fragment_container=0x7f080079;
         public static final int grayscale=0x7f080012;
-        public static final int greeting=0x7f080071;
+        public static final int greeting=0x7f080072;
         public static final int holo_dark=0x7f080005;
         public static final int holo_light=0x7f080006;
         public static final int home=0x7f080028;
@@ -1743,16 +1744,17 @@ containing a value of this type.
         public static final int never=0x7f08001e;
         public static final int none=0x7f080000;
         public static final int normal=0x7f080001;
-        public static final int pickFriendsButton=0x7f080075;
-        public static final int pickPlaceButton=0x7f080076;
+        public static final int pickFriendsButton=0x7f080076;
+        public static final int pickPlaceButton=0x7f080077;
         public static final int picker_subtitle=0x7f080063;
-        public static final int postPhotoButton=0x7f080074;
-        public static final int postStatusUpdateButton=0x7f080073;
+        public static final int postPhotoButton=0x7f080075;
+        public static final int postStatusUpdateButton=0x7f080074;
         public static final int production=0x7f080007;
-        public static final int profilePicture=0x7f080072;
+        public static final int profilePicture=0x7f080073;
         public static final int progress_circular=0x7f08002c;
         public static final int progress_horizontal=0x7f08002d;
         public static final int radio=0x7f080043;
+        public static final int renren_signin_button=0x7f080071;
         public static final int sandbox=0x7f080008;
         public static final int satellite=0x7f080002;
         public static final int search_badge=0x7f080046;
@@ -1766,7 +1768,7 @@ containing a value of this type.
         public static final int search_src_text=0x7f08004b;
         public static final int search_voice_btn=0x7f08004f;
         public static final int selectionDetails=0x7f08000b;
-        public static final int share_button=0x7f080077;
+        public static final int share_button=0x7f080078;
         public static final int shortcut=0x7f080042;
         public static final int showCustom=0x7f08001c;
         public static final int showHome=0x7f080019;
