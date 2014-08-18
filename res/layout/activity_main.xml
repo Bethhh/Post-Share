@@ -11,16 +11,7 @@
 
 
     <EditText
-        android:id="@+id/editText1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textMultiLine" >
-        <requestFocus />
-    </EditText>
-    
-    <EditText
-        android:id="@+id/caption"
+        android:id="@+id/statusBlank"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -29,7 +20,7 @@
     </EditText>
     
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/upload_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -37,11 +28,11 @@
     
     
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/post_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Button" />
+        android:text="Post" />
     
     
 </LinearLayout>

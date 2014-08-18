@@ -18,90 +18,61 @@ import com.facebook.AppEventsLogger;
 
 
 public class MainActivity extends FragmentActivity {
-	private FBActivity mainFragment;
-    private static final int SELECT_IMAGE = 2;
-    String selectedPath = "";
+    private static final int RC_SELECT_IMAGE = 2;
+    private String selectedPath = "";
     
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
-
-        if (savedInstanceState == null) {
-            // Add the fragment on initial activity setup
-            /*mainFragment = new MainFragment();
-            getSupportFragmentManager()
-            .beginTransaction()
-            .add(android.R.id.content, mainFragment)
-            .commit();*/
-        } else {
-            // Or set the fragment from restored state info
-            /*mainFragment = (MainFragment) getSupportFragmentManager()
-            .findFragmentById(android.R.id.content);*/
-        }
-        //210AB929285D383D
         setContentView(R.layout.activity_main);
         
         
-        Button c = (Button)findViewById(R.id.button2);
-        c.setOnClickListener(new OnClickListener() {
-			
+        //Upload Button
+        Button uploadButton = (Button)findViewById(R.id.upload_btn);
+        
+        uploadButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+			    //Chooses image to upload
 		        Intent intent = new Intent();
 		        intent.setType("image/*");
 		        intent.setAction(Intent.ACTION_GET_CONTENT);
-		        startActivityForResult(Intent.createChooser(intent,"Select Image "), SELECT_IMAGE);	
-		        			
+		        startActivityForResult(Intent.createChooser(intent,"Select Image "), RC_SELECT_IMAGE);	  			
 			}
 		});
+ 
         
+        //Post Button    
+        Button postButton = (Button)findViewById(R.id.post_btn);
         
-
-        
-        
-        Button b = (Button)findViewById(R.id.button1);
-        b.setOnClickListener(new OnClickListener() {
-			
+        postButton.setOnClickListener(new OnClickListener() {		
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				EditText status = (EditText)findViewById(R.id.editText1);
-				EditText caption = (EditText)findViewById(R.id.caption);
-				Intent intent = new Intent(MainActivity.this, FBActivity.class);
-				String a = caption.getText().toString();
-				String b = status.getText().toString();
-				Bundle args = new Bundle();
-				args.putString("status", status.getText().toString());
-				args.putString("image", selectedPath);
-				args.putString("caption", caption.getText().toString());
-				//mainFragment.setArguments(args);
-				intent.putExtras(args);
-                startActivity(intent);
-
-	           /* getSupportFragmentManager()
-	            .beginTransaction()
-	            .add(android.R.id.content, mainFragment)
-	            .commit();*/
+			    //Gets text of status or photo caption
+				EditText statusOrCaption = (EditText)findViewById(R.id.statusBlank);		
+				String text = statusOrCaption.getText().toString();
 				
+				//Adds all information of status/photo to bundle
+                Bundle args = new Bundle();
+				args.putString("statusOrCaption", text);
+				args.putString("image", selectedPath);
+
+				//Passes bundle to next activity
+				Intent intent = new Intent(MainActivity.this, UpdateActivity.class);
+				intent.putExtras(args);
+                startActivity(intent);				
 			}
 		});
     }
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-   	 
+       
+    public void onActivityResult(int requestCode, int resultCode, Intent data) { 
         if (resultCode == RESULT_OK) {
- 
-            if (requestCode == SELECT_IMAGE)
-            {
-                System.out.println("SELECT_IMAGE");
-                Uri selectedImageUri = data.getData();
+            if (requestCode == RC_SELECT_IMAGE) {
+                Uri selectedImageUri = data.getData(); 
                 selectedPath = getPath(selectedImageUri);
-                System.out.println("SELECT_Image Path : " + selectedPath);                
+                //System.out.println("SELECT_Image Path : " + selectedPath);                
             }
- 
         }
     }
  
@@ -135,22 +106,9 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	public void onResume() {
 	    super.onResume();
-	    // For scenarios where the main activity is launched and user
-	    // session is not null, the session state change notification
-	    // may not be triggered. Trigger it if it's open/closed.
-	    
-	 /*   Session session = Session.getActiveSession();
-	    if (session != null &&
-	           (session.isOpened() || session.isClosed()) ) {
-	        onSessionStateChange(session, session.getState(), null);
-	    }*/
-
 
         // Call the 'activateApp' method to log an app event for use in analytics and advertising reporting.  Do so in
         // the onResume methods of the primary Activities that an app may be launched into.
         AppEventsLogger.activateApp(this);
-
 	}
-
-
 }
